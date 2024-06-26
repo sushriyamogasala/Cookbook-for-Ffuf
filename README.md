@@ -1,7 +1,9 @@
-## Cookbook for Fuff on Kali Linux
+# Cookbook for Ffuf on Kali Linux
+
+![image](https://github.com/sushriyamogasala/Cookbook-for-Fuff-/assets/104165177/65befb47-b6b8-48a2-a702-c386e27faa76)
 
 ### Table of Contents
-1. Introduction to Fuff
+1. Introduction to Ffuf
 2. Installation
 3. Basic Usage
 4. Advanced Usage
@@ -12,33 +14,39 @@
 
 ---
 
-### 1. Introduction to Fuff
+### 1. Introduction to Ffuf
 
-Fuff is a versatile and fast web fuzzer written in Go, designed for brute-forcing directories, parameters, and more. It's an essential tool for penetration testers and security researchers due to its speed and wide range of applications.
+Ffuf (FFUF) is a powerful and fast tool for discovering hidden parts of a website by automating the process of testing many different inputs against a web server and analyzing the responses. It is particularly useful for security testing and bug hunting.
+
+#### Key Features
+- **Purpose**: Discover hidden elements of a website that are not easily accessible or visible.
+- **Fuzzing**: Automates sending numerous requests with different inputs to uncover hidden directories, files, or parameters.
+- **Speed**: Designed to be fast and efficient, capable of handling large wordlists and high volumes of requests quickly.
 
 ### 2. Installation
 
-#### Installing Fuff on Kali Linux
+#### Installing Ffuf on Kali Linux
 
 1. **Update your system**:
    ```bash
    sudo apt update && sudo apt upgrade -y
    ```
 
-2. **Install Go (if not already installed)**:
+2. **Install Ffuf**:
    ```bash
-   sudo apt install golang -y
+   sudo apt-get install ffuf
    ```
 
-3. **Download and install Fuff**:
-   ```bash
-   go install github.com/ffuf/ffuf/v2@latest
-   ```
-
-4. **Verify installation**:
+3. **Verify installation**:
    ```bash
    ffuf -h
    ```
+![image](https://github.com/sushriyamogasala/Cookbook-for-Fuff-/assets/104165177/4b5a5c64-7f02-412a-8f9b-0cf5cf14eda7)
+
+- Use the command:ffuf -h.We can find the help page we can explore the tool with this command.
+
+![image](https://github.com/sushriyamogasala/Cookbook-for-Fuff-/assets/104165177/b28b2a59-5926-4f66-8512-7220abfb69cc)
+
 
 ### 3. Basic Usage
 
@@ -47,58 +55,71 @@ Fuff is a versatile and fast web fuzzer written in Go, designed for brute-forcin
 To brute-force directories on a web server:
 
 ```bash
-ffuf -u http://target.com/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+ffuf -u http://example.com/FUZZ -w wordlist.txt
 ```
+- `-u http://example.com/FUZZ`: The target URL with `FUZZ` as the placeholder.
+- `-w wordlist.txt`: The wordlist file containing different names to test.
 
-- `-u`: Specifies the URL with the `FUZZ` keyword indicating where to inject the payload.
-- `-w`: Specifies the wordlist to use.
+#### File Discovery with Specific Extensions
 
-#### Parameter Brute-Forcing
+For file discovery, you can use the same command. To include specific file extensions from the wordlist, use the -e flag.
 
-To brute-force parameters:
+To discover files with specific extensions:
 
 ```bash
-ffuf -u http://target.com/page?FUZZ=test -w /usr/share/wordlists/parameters.txt
+ffuf -w wordlist.txt -u http://website.com/FUZZ -e .aspx,.html,.php,.txt
 ```
+Example for a maximum fuzzing time of 60 seconds:
+
+Command : ffuf -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u https://geeksforgeeks.org/FUZZ -maxtime 60
+
+![image](https://github.com/sushriyamogasala/Cookbook-for-Fuff-/assets/104165177/ca1db429-cd03-4960-b6c0-b39553fd9b8e)
 
 ### 4. Advanced Usage
 
-#### Multiple Wordlists
+#### Filtering Responses
 
-You can use multiple wordlists for complex fuzzing tasks:
+Ffuf offers options to filter responses by status codes, line counts, response sizes, word counts, and regex patterns:
+
+- **Status Code**: `-mc`
+- **Number of Lines**: `-ml`
+- **Regex Pattern**: `-mr`
+- **Response Size**: `-ms`
+- **Number of Words**: `-mw`
+
+Example to get responses with status codes 200 and 302:
 
 ```bash
-ffuf -u http://target.com/FUZZ/BUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -w /usr/share/wordlists/dirbuster/files.txt
+ffuf -w wordlist.txt -u http://website.com/FUZZ -e .aspx,.html -mc 200,302
 ```
 
-#### POST Data Fuzzing
+#### Recursion
 
-For fuzzing POST data:
+URL parameters ending with `FUZZ` support recursion. Use the `-recursion` flag to enable this feature:
+
+- **Recursion Depth**: `-recursion-depth`
+- **Maximum Time**: `-maxtime`
+- **Maximum Time per Job**: `-maxtime-job`
+
+Example with a maximum fuzzing time of 60 seconds:
 
 ```bash
-ffuf -u http://target.com/login -w /usr/share/wordlists/usernames.txt:USERNAME -w /usr/share/wordlists/passwords.txt:PASSWORD -X POST -d 'username=USERNAME&password=PASSWORD'
+ffuf -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u https://geeksforgeeks.org/FUZZ -maxtime 60
 ```
-
-- `-X POST`: Specifies the HTTP method.
-- `-d`: Specifies the POST data with placeholders.
 
 ### 5. Real-World Scenarios
 
 #### Discovering Hidden Endpoints
 
 ```bash
-ffuf -u http://target.com/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -mc 200
+ffuf -u http://example.com/FUZZ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -mc 200
 ```
-
-- `-mc 200`: Match HTTP status code 200 to filter results.
 
 #### Subdomain Enumeration
 
 ```bash
-ffuf -u http://FUZZ.target.com -w /usr/share/wordlists/subdomains.txt -mc 200,301,302
+ffuf -u http://FUZZ.example.com -w /usr/share/wordlists/subdomains.txt -mc 200,301,302
 ```
-
-- Enumerate subdomains and filter based on status codes.
 
 ### 6. Tips and Best Practices
 
@@ -108,16 +129,16 @@ ffuf -u http://FUZZ.target.com -w /usr/share/wordlists/subdomains.txt -mc 200,30
 
 ### 7. Troubleshooting
 
-- **Installation issues**: Ensure Go is installed correctly. Use `go env` to check Go environment variables.
+- **Installation issues**: Ensure Ffuf is installed correctly.
 - **Connection errors**: Verify the target URL and network connection.
 - **Permissions**: Run commands with `sudo` if you encounter permission issues.
 
 ### 8. Resources
 
-- [Fuff GitHub Repository](https://github.com/ffuf/ffuf)
+- [Ffuf GitHub Repository](https://github.com/ffuf/ffuf)
 - [Kali Linux Documentation](https://www.kali.org/docs/)
 - [OWASP Wordlists](https://owasp.org/www-project-seclists/)
 
 ---
 
-This cookbook provides a comprehensive guide to using Fuff on Kali Linux. Whether you're a beginner or an advanced user, this guide will help you utilize Fuff's powerful capabilities effectively.
+This cookbook provides a comprehensive guide to using Ffuf on Kali Linux. Whether you're a beginner or an advanced user, this guide will help you utilize Ffuf's powerful capabilities effectively.
